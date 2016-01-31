@@ -72,23 +72,9 @@ void MIDISetupWithSource(int sourceNo)
     MIDIEndpointRef source = MIDIGetSource(sourceNo);
     CFStringRef endpointName = NULL;
     MIDIObjectGetStringProperty(source, kMIDIPropertyName, &endpointName);
-    char endpointNameC[255];
-    CFStringGetCString(endpointName, endpointNameC, 255, kCFStringEncodingUTF8);
-    
-    //This is done manually due to the issue I currenly have with the <#void *connRefCon#> paramater of MIDIPortConnectSource not passing.
-    //I hope to have a fix soon.
-    
-    if(strncmp(endpointNameC, "Launchpad",2)==0)
-    {
-        MIDIPortConnectSource(inPort, source, (void*)"Launchpad");
-        NSLog(@"Recieving MIDI data from Launchpad");
-    };
-    if(strncmp(endpointNameC, "Controls",2)==0)
-    {
-        MIDIPortConnectSource(inPort, source, (void*)"Code");
-        NSLog(@"Recieving MIDI data from Code");
-    };
-    
+
+    MIDIPortConnectSource(inPort, source, &client);
+    NSLog(@"Recieving MIDI data from %@", endpointName);
 }
 
 #pragma mark - Main
@@ -97,9 +83,10 @@ int main (int argc, const char * argv[])
 	@autoreleasepool {
         
     listSources();           //See which sources you'd like to connect and then connect them as below.
-        
-    MIDISetupWithSource(6);  //Connecting source 6 - Novation Launchpad.
-    MIDISetupWithSource(7);  //Connecting source 7 - Livid Code.
+
+    MIDISetupWithSource(0);
+    //MIDISetupWithSource(6);  //Connecting source 6 - Novation Launchpad.
+    //MIDISetupWithSource(7);  //Connecting source 7 - Livid Code.
 
 	CFRunLoopRun();          //Loop this for constant data updates.
 
