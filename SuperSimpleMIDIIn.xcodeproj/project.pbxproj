@@ -12,6 +12,7 @@
 		E22DFA64177F2D67003F72E6 /* SuperSimpleMIDIIn.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = E22DFA63177F2D67003F72E6 /* SuperSimpleMIDIIn.1 */; };
 		E22DFA6B177F2D7A003F72E6 /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E22DFA6A177F2D7A003F72E6 /* CoreMIDI.framework */; };
 		E22DFA71177F4FEC003F72E6 /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E22DFA70177F4FEC003F72E6 /* AudioUnit.framework */; };
+		E43FE9291C5E510800505FB3 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E43FE9281C5E510800505FB3 /* AudioToolbox.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -35,6 +36,7 @@
 		E22DFA63177F2D67003F72E6 /* SuperSimpleMIDIIn.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = SuperSimpleMIDIIn.1; sourceTree = "<group>"; };
 		E22DFA6A177F2D7A003F72E6 /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = System/Library/Frameworks/CoreMIDI.framework; sourceTree = SDKROOT; };
 		E22DFA70177F4FEC003F72E6 /* AudioUnit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioUnit.framework; path = System/Library/Frameworks/AudioUnit.framework; sourceTree = SDKROOT; };
+		E43FE9281C5E510800505FB3 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -42,6 +44,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E43FE9291C5E510800505FB3 /* AudioToolbox.framework in Frameworks */,
 				E22DFA71177F4FEC003F72E6 /* AudioUnit.framework in Frameworks */,
 				E22DFA6B177F2D7A003F72E6 /* CoreMIDI.framework in Frameworks */,
 				E22DFA5D177F2D67003F72E6 /* Foundation.framework in Frameworks */,
@@ -71,6 +74,7 @@
 		E22DFA5B177F2D67003F72E6 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				E43FE9281C5E510800505FB3 /* AudioToolbox.framework */,
 				E22DFA70177F4FEC003F72E6 /* AudioUnit.framework */,
 				E22DFA6A177F2D7A003F72E6 /* CoreMIDI.framework */,
 				E22DFA5C177F2D67003F72E6 /* Foundation.framework */,
