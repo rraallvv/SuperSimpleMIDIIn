@@ -93,11 +93,11 @@ static void	MIDIRead(const MIDIPacketList *pktlist, void *refCon, void *srcConnR
 
             MusicDeviceMIDIEvent(instrumentUnit, midiStatus, note, velocity, 0);
             
-            NSLog(@"%@ - NOTE : %d | %d | %d", source, note, velocity, channel);
+            NSLog(@"%@ - NOTE : %d | %d | %d", (CFStringRef)source, note, velocity, channel);
             
 		} else {
         
-            NSLog(@"%@ - CNTRL  : %d | %d", source, note, velocity);
+            NSLog(@"%@ - CNTRL  : %d | %d", (CFStringRef)source, note, velocity);
         }
 		
         //After we are done reading the data, move to the next packet.
