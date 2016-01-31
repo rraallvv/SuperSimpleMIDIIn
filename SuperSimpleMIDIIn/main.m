@@ -84,18 +84,20 @@ static void	MIDIRead(const MIDIPacketList *pktlist, void *refCon, void *srcConnR
     for (int i=0; i < pktlist->numPackets; i++) {
         
 		Byte midiStatus = packet->data[0];
-		Byte midiCommand = midiStatus >> 4;
+		Byte midiCommand = midiStatus  & 0xF0;
                 
-		if ((midiCommand == 0x09) || //note on
-			(midiCommand == 0x08)) { //note off
-			
+		if ((midiCommand == 0x90) || //note on
+			(midiCommand == 0x80)) { //note off
+
+            Byte channel = midiStatus & 0x0F;
+
             MusicDeviceMIDIEvent(instrumentUnit, midiStatus, note, velocity, 0);
             
-            NSLog(@"%s - NOTE : %d | %d", source, note, velocity);
+            NSLog(@"%@ - NOTE : %d | %d | %d", source, note, velocity, channel);
             
 		} else {
         
-            NSLog(@"%s - CNTRL  : %d | %d", source, note, velocity);
+            NSLog(@"%@ - CNTRL  : %d | %d", source, note, velocity);
         }
 		
         //After we are done reading the data, move to the next packet.
@@ -136,7 +138,7 @@ void MIDISetupWithSource(int sourceNo)
     CFStringRef endpointName = NULL;
     MIDIObjectGetStringProperty(source, kMIDIPropertyName, &endpointName);
 
-    MIDIPortConnectSource(inPort, source, &client);
+    MIDIPortConnectSource(inPort, source, (void *)endpointName);
     NSLog(@"Recieving MIDI data from %@", endpointName);
 }
 
