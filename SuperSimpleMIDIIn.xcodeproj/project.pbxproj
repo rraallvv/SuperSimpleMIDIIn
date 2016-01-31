@@ -13,18 +13,20 @@
 		E22DFA6B177F2D7A003F72E6 /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E22DFA6A177F2D7A003F72E6 /* CoreMIDI.framework */; };
 		E22DFA71177F4FEC003F72E6 /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E22DFA70177F4FEC003F72E6 /* AudioUnit.framework */; };
 		E43FE9291C5E510800505FB3 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E43FE9281C5E510800505FB3 /* AudioToolbox.framework */; };
+		E43FE92B1C5E5FAB00505FB3 /* sounds.sf2 in CopyFiles */ = {isa = PBXBuildFile; fileRef = E43FE92A1C5E5F7D00505FB3 /* sounds.sf2 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		E22DFA57177F2D67003F72E6 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
+			buildActionMask = 12;
+			dstPath = "";
+			dstSubfolderSpec = 16;
 			files = (
+				E43FE92B1C5E5FAB00505FB3 /* sounds.sf2 in CopyFiles */,
 				E22DFA64177F2D67003F72E6 /* SuperSimpleMIDIIn.1 in CopyFiles */,
 			);
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
@@ -37,6 +39,7 @@
 		E22DFA6A177F2D7A003F72E6 /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = System/Library/Frameworks/CoreMIDI.framework; sourceTree = SDKROOT; };
 		E22DFA70177F4FEC003F72E6 /* AudioUnit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioUnit.framework; path = System/Library/Frameworks/AudioUnit.framework; sourceTree = SDKROOT; };
 		E43FE9281C5E510800505FB3 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
+		E43FE92A1C5E5F7D00505FB3 /* sounds.sf2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = sounds.sf2; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -87,6 +90,7 @@
 			children = (
 				E22DFA5F177F2D67003F72E6 /* main.m */,
 				E22DFA63177F2D67003F72E6 /* SuperSimpleMIDIIn.1 */,
+				E43FE92A1C5E5F7D00505FB3 /* sounds.sf2 */,
 				E22DFA61177F2D67003F72E6 /* Supporting Files */,
 			);
 			path = SuperSimpleMIDIIn;

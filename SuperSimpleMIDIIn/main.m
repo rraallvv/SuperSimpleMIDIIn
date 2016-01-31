@@ -5,7 +5,7 @@
 #include <AudioToolbox/AudioToolbox.h>
 
 /* Create an AudioUnit */
-AudioUnit instrumentUnit;
+AudioUnit synthUnit;
 
 #pragma mark Audio Graph Setup
 
@@ -54,19 +54,43 @@ static void audioGraphSetup() {
     cd.componentSubType = kAudioUnitSubType_DLSSynth;
 
     AUGraphAddNode(audioGraph, &cd, &synthNode);
-    AUGraphNodeInfo(audioGraph, synthNode, &cd, &instrumentUnit);
+    AUGraphNodeInfo(audioGraph, synthNode, &cd, &synthUnit);
 
     AUGraphConnectNodeInput(audioGraph, synthNode, 0, mixerNode, 0);
 
     AUGraphUpdate(audioGraph, NULL);
     CAShow(audioGraph);
 
-    MusicDeviceMIDIEvent(instrumentUnit, 0x90, 60, 127, 0);
+    const char *bankPath= "sounds.sf2";
+
+    CFURLRef url = CFURLCreateFromFileSystemRepresentation(kCFAllocatorDefault,
+                                                           (const UInt8 *)bankPath,
+                                                           strlen(bankPath),
+                                                           false);
+
+    if (url) {
+        AudioUnitSetProperty(synthUnit,
+                             kMusicDeviceProperty_SoundBankURL,
+                             kAudioUnitScope_Global,
+                             0,
+                             &url,
+                             sizeof(url));
+
+        CFRelease(url);
+    }
+
+
+    MusicDeviceMIDIEvent(synthUnit, 0x90, 60, 127, 0);
     sleep(1);
-    MusicDeviceMIDIEvent(instrumentUnit, 0x90, 62, 127, 0);
+    MusicDeviceMIDIEvent(synthUnit, 0x90, 60, 0, 0);
+
+    MusicDeviceMIDIEvent(synthUnit, 0x91, 62, 127, 0);
     sleep(1);
-    MusicDeviceMIDIEvent(instrumentUnit, 0x90, 64, 127, 0);
+    MusicDeviceMIDIEvent(synthUnit, 0x91, 62, 0, 0);
+
+    MusicDeviceMIDIEvent(synthUnit, 0x92, 64, 127, 0);
     sleep(1);
+    MusicDeviceMIDIEvent(synthUnit, 0x92, 64, 0, 0);
 }
 
 /* Establisth MIDIRead and MIDI Notify callbacks which will get MIDI data from the devices */
@@ -74,7 +98,7 @@ static void audioGraphSetup() {
 static void	MIDIRead(const MIDIPacketList *pktlist, void *refCon, void *srcConnRefCon) {
     
     //Reads the source/device's name which is allocated in the MidiSetupWithSource function.
-    const char *source = srcConnRefCon;
+    CFStringRef source = srcConnRefCon;
     
     //Extracting the data from the MIDI packets receieved.
     MIDIPacket *packet = (MIDIPacket *)pktlist->packet;
@@ -91,13 +115,13 @@ static void	MIDIRead(const MIDIPacketList *pktlist, void *refCon, void *srcConnR
 
             Byte channel = midiStatus & 0x0F;
 
-            MusicDeviceMIDIEvent(instrumentUnit, midiStatus, note, velocity, 0);
+            MusicDeviceMIDIEvent(synthUnit, midiStatus, note, velocity, 0);
             
-            NSLog(@"%@ - NOTE : %d | %d | %d", (CFStringRef)source, note, velocity, channel);
+            NSLog(@"%@ - NOTE : %d | %d | %d", source, note, velocity, channel);
             
 		} else {
         
-            NSLog(@"%@ - CNTRL  : %d | %d", (CFStringRef)source, note, velocity);
+            NSLog(@"%@ - CNTRL  : %d | %d", source, note, velocity);
         }
 		
         //After we are done reading the data, move to the next packet.
@@ -129,10 +153,10 @@ void listSources ()
 void MIDISetupWithSource(int sourceNo)
 {
     MIDIClientRef client;
-	MIDIClientCreate(CFSTR("SuperSimpleMIDIIn"), NotificationProc, instrumentUnit, &client);
+	MIDIClientCreate(CFSTR("SuperSimpleMIDIIn"), NotificationProc, synthUnit, &client);
     
 	MIDIPortRef inPort;
-	MIDIInputPortCreate(client, CFSTR("Input port"), MIDIRead, instrumentUnit, &inPort);
+	MIDIInputPortCreate(client, CFSTR("Input port"), MIDIRead, synthUnit, &inPort);
     
     MIDIEndpointRef source = MIDIGetSource(sourceNo);
     CFStringRef endpointName = NULL;
@@ -165,10 +189,10 @@ int main (int argc, const char * argv[])
 void setupMIDI() { //Currently unused function.
 	
 	MIDIClientRef client;
-	MIDIClientCreate(CFSTR("SuperSimpleMIDIIn"), NotificationProc, instrumentUnit, &client);
+	MIDIClientCreate(CFSTR("SuperSimpleMIDIIn"), NotificationProc, synthUnit, &client);
     
 	MIDIPortRef inPort;
-	MIDIInputPortCreate(client, CFSTR("Input port"), MIDIRead, instrumentUnit, &inPort);
+	MIDIInputPortCreate(client, CFSTR("Input port"), MIDIRead, synthUnit, &inPort);
     
     unsigned long sourceCount = MIDIGetNumberOfSources();
     
