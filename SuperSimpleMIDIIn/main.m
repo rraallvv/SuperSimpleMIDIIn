@@ -117,7 +117,7 @@ void listSources ()
         MIDIObjectGetStringProperty(source, kMIDIPropertyName, &endpointName);
         char endpointNameC[255];
         CFStringGetCString(endpointName, endpointNameC, 255, kCFStringEncodingUTF8);
-        NSLog(@"Source %d - %s", i, endpointNameC);
+        NSLog(@"Source %d - '%s'", i, endpointNameC);
     }
 }
 
@@ -135,7 +135,7 @@ void MIDISetupWithSource(int sourceNo)
     MIDIObjectGetStringProperty(source, kMIDIPropertyName, &endpointName);
 
     MIDIPortConnectSource(inPort, source, (void *)endpointName);
-    NSLog(@"Recieving MIDI data from %@", endpointName);
+    NSLog(@"Recieving MIDI data from source %d '%@'", sourceNo, endpointName);
 }
 
 #pragma mark - Main
@@ -166,7 +166,11 @@ int main (int argc, const char * argv[])
 
 		listSources();           //See which sources you'd like to connect and then connect them as below.
 
-		MIDISetupWithSource(0);
+		int source = 0;
+		printf("Enter the source to use (0-16):\n");
+		scanf("%d",&source);
+
+		MIDISetupWithSource(source);
 		//MIDISetupWithSource(6);  //Connecting source 6 - Novation Launchpad.
 		//MIDISetupWithSource(7);  //Connecting source 7 - Livid Code.
 
