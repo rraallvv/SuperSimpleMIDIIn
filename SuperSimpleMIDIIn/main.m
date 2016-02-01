@@ -4,93 +4,84 @@
 #import <AudioUnit/AudioUnit.h>
 #include <AudioToolbox/AudioToolbox.h>
 
+// some MIDI constants:
+enum {
+	kMidiMessage_ControlChange      = 0xB,
+	kMidiMessage_ProgramChange      = 0xC,
+	kMidiMessage_BankMSBControl     = 0,
+	kMidiMessage_BankLSBControl     = 32,
+	kMidiMessage_NoteOn             = 0x9,
+	kMidiMessage_NoteOff            = 0x8
+};
+
 /* Create an AudioUnit */
 AudioUnit synthUnit;
 
 #pragma mark Audio Graph Setup
 
 static void audioGraphSetup() {
-    AUGraph audioGraph;
-    NewAUGraph(&audioGraph);
+	AUGraph graph;
+	AUNode outputNode, mixerNode, synthNode;
+	//AudioUnit synthUnit;
 
-    AudioComponentDescription cd;
-    AUNode outputNode;
-    AudioUnit outputUnit;
+	//Setup Graph
+	NewAUGraph(&graph);
 
-    cd.componentManufacturer = kAudioUnitManufacturer_Apple;
-    cd.componentFlags = 0;
-    cd.componentFlagsMask = 0;
-    cd.componentType = kAudioUnitType_Output;
-    cd.componentSubType = kAudioUnitSubType_DefaultOutput;
+	AudioComponentDescription cd;
+	cd.componentManufacturer = kAudioUnitManufacturer_Apple;
+	cd.componentFlags = 0;
+	cd.componentFlagsMask = 0;
+	cd.componentType = kAudioUnitType_Output;
+	//cd.componentSubType = kAudioUnitSubType_HALOutput;
+	cd.componentSubType = kAudioUnitSubType_DefaultOutput;
 
-    AUGraphAddNode(audioGraph, &cd, &outputNode);
-    AUGraphNodeInfo(audioGraph, outputNode, &cd, &outputUnit);
+	AUGraphAddNode(graph, &cd, &outputNode);
+	AUGraphOpen(graph);
+	AUGraphInitialize(graph);
+	AUGraphStart(graph);
 
-    AUNode mixerNode;
-    AudioUnit mixerUnit;
+	//New NODES
+	cd.componentManufacturer = kAudioUnitManufacturer_Apple;
+	cd.componentFlags = 0;
+	cd.componentFlagsMask = 0;
+	cd.componentType = kAudioUnitType_MusicDevice;
+	cd.componentSubType = kAudioUnitSubType_DLSSynth;
 
-    cd.componentManufacturer = kAudioUnitManufacturer_Apple;
-    cd.componentFlags = 0;
-    cd.componentFlagsMask = 0;
-    cd.componentType = kAudioUnitType_Mixer;
-    cd.componentSubType = kAudioUnitSubType_StereoMixer;
+	AUGraphAddNode(graph, &cd, &synthNode);
+	AUGraphNodeInfo(graph, synthNode, NULL, &synthUnit);
 
-    AUGraphAddNode(audioGraph, &cd, &mixerNode);
-    AUGraphNodeInfo(audioGraph, mixerNode, &cd, &mixerUnit);
+	cd.componentManufacturer = kAudioUnitManufacturer_Apple;
+	cd.componentFlags = 0;
+	cd.componentFlagsMask = 0;
+	cd.componentType = kAudioUnitType_Mixer;
+	cd.componentSubType = kAudioUnitSubType_StereoMixer;
 
-    AUGraphConnectNodeInput(audioGraph, mixerNode, 0, outputNode, 0);
+	AUGraphAddNode(graph, &cd, &mixerNode);
 
-    AUGraphOpen(audioGraph);
-    AUGraphInitialize(audioGraph);
-    AUGraphStart(audioGraph);
+	//Connect NODES
+	AUGraphConnectNodeInput(graph, mixerNode, 0, outputNode, 0);
+	AUGraphConnectNodeInput(graph, synthNode, 0, mixerNode, 0);
+	//Update Graph
+	AUGraphUpdate(graph,NULL);
 
-    AUNode synthNode;
-    //AudioUnit synthUnit;
+	//send program changes and notes
+	//using 3 different channels
+	MusicDeviceMIDIEvent(synthUnit, kMidiMessage_ProgramChange<<4|0, 0, 0, 0);
+	MusicDeviceMIDIEvent(synthUnit, kMidiMessage_ProgramChange<<4|1, 10, 0, 0);
+	MusicDeviceMIDIEvent(synthUnit, kMidiMessage_ProgramChange<<4|2, 20, 0, 0);
+	sleep(1);
 
-    cd.componentManufacturer = kAudioUnitManufacturer_Apple;
-    cd.componentFlags = 0;
-    cd.componentFlagsMask = 0;
-    cd.componentType = kAudioUnitType_MusicDevice;
-    cd.componentSubType = kAudioUnitSubType_DLSSynth;
+	MusicDeviceMIDIEvent(synthUnit, kMidiMessage_NoteOn<<4|0, 60, 80, 0);
+	sleep(1);
+	MusicDeviceMIDIEvent(synthUnit, kMidiMessage_NoteOff<<4|0, 60, 0, 0);
 
-    AUGraphAddNode(audioGraph, &cd, &synthNode);
-    AUGraphNodeInfo(audioGraph, synthNode, &cd, &synthUnit);
+	MusicDeviceMIDIEvent(synthUnit, kMidiMessage_NoteOn<<4|1, 60, 80, 0);
+	sleep(1);
+	MusicDeviceMIDIEvent(synthUnit, kMidiMessage_NoteOff<<4|1, 60, 0, 0);
 
-    AUGraphConnectNodeInput(audioGraph, synthNode, 0, mixerNode, 0);
-
-    AUGraphUpdate(audioGraph, NULL);
-    CAShow(audioGraph);
-
-    const char *bankPath= "sounds.sf2";
-
-    CFURLRef url = CFURLCreateFromFileSystemRepresentation(kCFAllocatorDefault,
-                                                           (const UInt8 *)bankPath,
-                                                           strlen(bankPath),
-                                                           false);
-
-    if (url) {
-        AudioUnitSetProperty(synthUnit,
-                             kMusicDeviceProperty_SoundBankURL,
-                             kAudioUnitScope_Global,
-                             0,
-                             &url,
-                             sizeof(url));
-
-        CFRelease(url);
-    }
-
-
-    MusicDeviceMIDIEvent(synthUnit, 0x90, 60, 127, 0);
-    sleep(1);
-    MusicDeviceMIDIEvent(synthUnit, 0x90, 60, 0, 0);
-
-    MusicDeviceMIDIEvent(synthUnit, 0x91, 62, 127, 0);
-    sleep(1);
-    MusicDeviceMIDIEvent(synthUnit, 0x91, 62, 0, 0);
-
-    MusicDeviceMIDIEvent(synthUnit, 0x92, 64, 127, 0);
-    sleep(1);
-    MusicDeviceMIDIEvent(synthUnit, 0x92, 64, 0, 0);
+	MusicDeviceMIDIEvent(synthUnit, kMidiMessage_NoteOn<<4|2, 60, 80, 0);
+	sleep(1);
+	MusicDeviceMIDIEvent(synthUnit, kMidiMessage_NoteOff<<4|2, 60, 0, 0);
 }
 
 /* Establisth MIDIRead and MIDI Notify callbacks which will get MIDI data from the devices */
@@ -110,8 +101,8 @@ static void	MIDIRead(const MIDIPacketList *pktlist, void *refCon, void *srcConnR
 		Byte midiStatus = packet->data[0];
 		Byte midiCommand = midiStatus  & 0xF0;
                 
-		if ((midiCommand == 0x90) || //note on
-			(midiCommand == 0x80)) { //note off
+		if ((midiCommand == kMidiMessage_NoteOn<<4) || //note on
+			(midiCommand == kMidiMessage_NoteOff<<4)) { //note off
 
             Byte channel = midiStatus & 0x0F;
 
