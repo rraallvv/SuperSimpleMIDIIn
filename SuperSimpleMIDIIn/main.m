@@ -80,16 +80,21 @@ static void	MIDIRead(const MIDIPacketList *pktlist, void *refCon, void *srcConnR
         
 		Byte midiStatus = packet->data[0];
 		Byte midiCommand = midiStatus  & 0xF0;
-                
-		if ((midiCommand == kMidiMessage_NoteOn<<4) || //note on
-			(midiCommand == kMidiMessage_NoteOff<<4)) { //note off
+		Byte channel = midiStatus & 0x0F;
 
-            Byte channel = midiStatus & 0x0F;
+		if ((midiCommand >> 4 == kMidiMessage_NoteOn) || //note on
+			(midiCommand >> 4 == kMidiMessage_NoteOff)) { //note off
 
             MusicDeviceMIDIEvent(synthUnit, midiStatus, note, velocity, 0);
             
             printf("%s - NOTE : %d | %d | %d\n", source, note, velocity, channel);
             
+		} else if (midiCommand >> 4 == kMidiMessage_ProgramChange) {
+
+			MusicDeviceMIDIEvent(synthUnit, midiStatus, note, 0, 0);
+
+			printf("%s - PRGCH : %d | %d\n", source, note, channel);
+
 		} else {
         
             printf("%s - CNTRL  : %d | %d\n", source, note, velocity);
@@ -148,22 +153,24 @@ int main (int argc, const char * argv[])
 
 		//send program changes and notes
 		//using 3 different channels
-		MusicDeviceMIDIEvent(synthUnit, kMidiMessage_ProgramChange<<4|0, 0, 0, 0);
-		MusicDeviceMIDIEvent(synthUnit, kMidiMessage_ProgramChange<<4|1, 10, 0, 0);
-		MusicDeviceMIDIEvent(synthUnit, kMidiMessage_ProgramChange<<4|2, 20, 0, 0);
+		/*
+		MusicDeviceMIDIEvent(synthUnit, kMidiMessage_ProgramChange << 4 | 0, 0, 0, 0);
+		MusicDeviceMIDIEvent(synthUnit, kMidiMessage_ProgramChange << 4 | 1, 10, 0, 0);
+		MusicDeviceMIDIEvent(synthUnit, kMidiMessage_ProgramChange << 4 | 2, 20, 0, 0);
 		sleep(1);
 
-		MusicDeviceMIDIEvent(synthUnit, kMidiMessage_NoteOn<<4|0, 60, 80, 0);
+		MusicDeviceMIDIEvent(synthUnit, kMidiMessage_NoteOn << 4 | 0, 60, 80, 0);
 		sleep(1);
-		MusicDeviceMIDIEvent(synthUnit, kMidiMessage_NoteOff<<4|0, 60, 0, 0);
+		MusicDeviceMIDIEvent(synthUnit, kMidiMessage_NoteOff << 4 | 0, 60, 0, 0);
 
-		MusicDeviceMIDIEvent(synthUnit, kMidiMessage_NoteOn<<4|1, 60, 80, 0);
+		MusicDeviceMIDIEvent(synthUnit, kMidiMessage_NoteOn << 4 | 1, 60, 80, 0);
 		sleep(1);
-		MusicDeviceMIDIEvent(synthUnit, kMidiMessage_NoteOff<<4|1, 60, 0, 0);
+		MusicDeviceMIDIEvent(synthUnit, kMidiMessage_NoteOff << 4 | 1, 60, 0, 0);
 
-		MusicDeviceMIDIEvent(synthUnit, kMidiMessage_NoteOn<<4|2, 60, 80, 0);
+		MusicDeviceMIDIEvent(synthUnit, kMidiMessage_NoteOn << 4 | 2, 60, 80, 0);
 		sleep(1);
-		MusicDeviceMIDIEvent(synthUnit, kMidiMessage_NoteOff<<4|2, 60, 0, 0);
+		MusicDeviceMIDIEvent(synthUnit, kMidiMessage_NoteOff << 4 | 2, 60, 0, 0);
+		*/
 
 		listSources();           //See which sources you'd like to connect and then connect them as below.
 
