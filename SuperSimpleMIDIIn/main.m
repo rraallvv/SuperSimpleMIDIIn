@@ -63,25 +63,6 @@ static void audioGraphSetup() {
 	AUGraphConnectNodeInput(graph, synthNode, 0, mixerNode, 0);
 	//Update Graph
 	AUGraphUpdate(graph,NULL);
-
-	//send program changes and notes
-	//using 3 different channels
-	MusicDeviceMIDIEvent(synthUnit, kMidiMessage_ProgramChange<<4|0, 0, 0, 0);
-	MusicDeviceMIDIEvent(synthUnit, kMidiMessage_ProgramChange<<4|1, 10, 0, 0);
-	MusicDeviceMIDIEvent(synthUnit, kMidiMessage_ProgramChange<<4|2, 20, 0, 0);
-	sleep(1);
-
-	MusicDeviceMIDIEvent(synthUnit, kMidiMessage_NoteOn<<4|0, 60, 80, 0);
-	sleep(1);
-	MusicDeviceMIDIEvent(synthUnit, kMidiMessage_NoteOff<<4|0, 60, 0, 0);
-
-	MusicDeviceMIDIEvent(synthUnit, kMidiMessage_NoteOn<<4|1, 60, 80, 0);
-	sleep(1);
-	MusicDeviceMIDIEvent(synthUnit, kMidiMessage_NoteOff<<4|1, 60, 0, 0);
-
-	MusicDeviceMIDIEvent(synthUnit, kMidiMessage_NoteOn<<4|2, 60, 80, 0);
-	sleep(1);
-	MusicDeviceMIDIEvent(synthUnit, kMidiMessage_NoteOff<<4|2, 60, 0, 0);
 }
 
 /* Establisth MIDIRead and MIDI Notify callbacks which will get MIDI data from the devices */
@@ -162,17 +143,36 @@ int main (int argc, const char * argv[])
 {
 	@autoreleasepool {
 
-    audioGraphSetup();
-        
-    listSources();           //See which sources you'd like to connect and then connect them as below.
+		audioGraphSetup();
 
-    MIDISetupWithSource(0);
-    //MIDISetupWithSource(6);  //Connecting source 6 - Novation Launchpad.
-    //MIDISetupWithSource(7);  //Connecting source 7 - Livid Code.
+		//send program changes and notes
+		//using 3 different channels
+		MusicDeviceMIDIEvent(synthUnit, kMidiMessage_ProgramChange<<4|0, 0, 0, 0);
+		MusicDeviceMIDIEvent(synthUnit, kMidiMessage_ProgramChange<<4|1, 10, 0, 0);
+		MusicDeviceMIDIEvent(synthUnit, kMidiMessage_ProgramChange<<4|2, 20, 0, 0);
+		sleep(1);
 
-	CFRunLoopRun();          //Loop this for constant data updates.
+		MusicDeviceMIDIEvent(synthUnit, kMidiMessage_NoteOn<<4|0, 60, 80, 0);
+		sleep(1);
+		MusicDeviceMIDIEvent(synthUnit, kMidiMessage_NoteOff<<4|0, 60, 0, 0);
 
-    }
+		MusicDeviceMIDIEvent(synthUnit, kMidiMessage_NoteOn<<4|1, 60, 80, 0);
+		sleep(1);
+		MusicDeviceMIDIEvent(synthUnit, kMidiMessage_NoteOff<<4|1, 60, 0, 0);
+
+		MusicDeviceMIDIEvent(synthUnit, kMidiMessage_NoteOn<<4|2, 60, 80, 0);
+		sleep(1);
+		MusicDeviceMIDIEvent(synthUnit, kMidiMessage_NoteOff<<4|2, 60, 0, 0);
+
+		listSources();           //See which sources you'd like to connect and then connect them as below.
+
+		MIDISetupWithSource(0);
+		//MIDISetupWithSource(6);  //Connecting source 6 - Novation Launchpad.
+		//MIDISetupWithSource(7);  //Connecting source 7 - Livid Code.
+
+		CFRunLoopRun();          //Loop this for constant data updates.
+
+	}
 	return 0;
 }
 
