@@ -1,4 +1,3 @@
-
 #include <CoreFoundation/CoreFoundation.h>
 #import <CoreMIDI/CoreMIDI.h>
 #import <AudioUnit/AudioUnit.h>
@@ -70,7 +69,7 @@ static void audioGraphSetup() {
 static void	MIDIRead(const MIDIPacketList *pktlist, void *refCon, void *srcConnRefCon) {
     
     //Reads the source/device's name which is allocated in the MidiSetupWithSource function.
-    CFStringRef source = srcConnRefCon;
+    char *source = srcConnRefCon;
     
     //Extracting the data from the MIDI packets receieved.
     MIDIPacket *packet = (MIDIPacket *)pktlist->packet;
@@ -89,11 +88,11 @@ static void	MIDIRead(const MIDIPacketList *pktlist, void *refCon, void *srcConnR
 
             MusicDeviceMIDIEvent(synthUnit, midiStatus, note, velocity, 0);
             
-            NSLog(@"%@ - NOTE : %d | %d | %d", source, note, velocity, channel);
+            printf("%s - NOTE : %d | %d | %d\n", source, note, velocity, channel);
             
 		} else {
         
-            NSLog(@"%@ - CNTRL  : %d | %d", source, note, velocity);
+            printf("%s - CNTRL  : %d | %d\n", source, note, velocity);
         }
 		
         //After we are done reading the data, move to the next packet.
@@ -104,7 +103,7 @@ static void	MIDIRead(const MIDIPacketList *pktlist, void *refCon, void *srcConnR
 }
 
 void NotificationProc (const MIDINotification  *message, void *refCon) {
-	NSLog(@"MIDI Notify, MessageID=%d,", message->messageID);
+	printf("MIDI Notify, MessageID=%d,\n", message->messageID);
 }
 
 #pragma mark MIDI Source list
@@ -117,7 +116,7 @@ void listSources ()
         MIDIObjectGetStringProperty(source, kMIDIPropertyName, &endpointName);
         char endpointNameC[255];
         CFStringGetCString(endpointName, endpointNameC, 255, kCFStringEncodingUTF8);
-        NSLog(@"Source %d - '%s'", i, endpointNameC);
+        printf("Source %d - '%s'\n", i, endpointNameC);
     }
 }
 
@@ -133,9 +132,11 @@ void MIDISetupWithSource(int sourceNo)
     MIDIEndpointRef source = MIDIGetSource(sourceNo);
     CFStringRef endpointName = NULL;
     MIDIObjectGetStringProperty(source, kMIDIPropertyName, &endpointName);
+	char endpointNameC[255];
+	CFStringGetCString(endpointName, endpointNameC, 255, kCFStringEncodingUTF8);
 
-    MIDIPortConnectSource(inPort, source, (void *)endpointName);
-    NSLog(@"Recieving MIDI data from source %d '%@'", sourceNo, endpointName);
+    MIDIPortConnectSource(inPort, source, endpointNameC);
+    printf("Recieving MIDI data from source %d '%s'\n", sourceNo, endpointNameC);
 }
 
 #pragma mark - Main
